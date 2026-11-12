@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+/*
+ * Stringroom design tokens. One ground, one accent (amp orange), one status
+ * colour (LED green). Guitar woods live in the instrument catalog, not here.
+ */
+@theme {
+  --color-ground: #121211;
+  --color-panel: #1b1b19;
+  --color-raised: #242421;
+  --color-line: #2e2e2a;
+  --color-edge: #3a3934;
+  --color-edge-strong: #5a574f;
+  --color-fg: #f3f1ec;
+  --color-fg-soft: #d9d6ce;
+  --color-muted: #a8a59c;
+  --color-dim: #8a877e;
+  --color-accent: #ff7a1a;
+  --color-accent-ink: #1a0d02;
+  --color-accent-edge: #c2560c;
+  --color-led: #a3e36b;
+}
+
+@theme inline {
+  --font-sans: var(--font-archivo), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+}
+
+html {
+  background: var(--color-ground);
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background: var(--color-ground);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:where(button, a, input, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+input[type="range"] {
+  accent-color: var(--color-accent);
+}
+
+/* Guitar strings are drawn in SVG so they can bend toward the pick. */
+.guitar-string {
+  fill: none;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.7));
+  transition: opacity 130ms ease;
+}
+
+.guitar-string.is-muted {
+  opacity: 0.3;
+}
+
+.guitar-string.is-vibrating {
+  animation: string-vibration 420ms cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+@keyframes string-vibration {
+  0% { transform: translateY(0); }
+  14% { transform: translateY(3.5px); }
+  28% { transform: translateY(-2.8px); }
+  45% { transform: translateY(2px); }
+  64% { transform: translateY(-1.2px); }
+  82% { transform: translateY(0.5px); }
+  100% { transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
