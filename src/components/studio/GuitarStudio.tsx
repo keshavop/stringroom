@@ -308,32 +308,27 @@ export default function GuitarStudio({
 
   return (
     <section id="play" aria-labelledby="now-playing" className="flex scroll-mt-6 flex-col gap-5">
-      <div className="flex flex-wrap items-end justify-between gap-5">
-        <div>
+      {/*
+        Fixed-height header: the title and the tab row each keep their own line
+        for every guitar, so switching guitars never moves the instrument.
+      */}
+      <div className="flex flex-col gap-4">
+        <div className="min-w-0">
           <p className="font-mono text-xs tracking-[0.14em] text-dim">NOW PLAYING</p>
           <h1
             id="now-playing"
-            className="mt-1.5 text-[clamp(1.75rem,3vw,2.125rem)] font-extrabold leading-[1.05] tracking-[-0.01em] font-stretch-semi-expanded"
+            className="mt-1.5 truncate text-[clamp(1.75rem,3vw,2.125rem)] font-extrabold leading-[1.15] tracking-[-0.01em] font-stretch-semi-expanded"
           >
             {guitar.name} <span className="font-medium text-dim">· {guitar.model}</span>
           </h1>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <AnimatedTabs label="Choose a guitar" tabs={GUITAR_TABS} value={guitarId} onChange={onGuitarChange} />
-          {canUsePowerChords && (
-            <button
-              type="button"
-              aria-pressed={powerChords}
-              onClick={() => updateLibrary((current) => updatePreferences(current, { powerChords: !powerChords }))}
-              className={cn(
-                "h-11 rounded-full border px-4 text-[13px] font-semibold transition-colors",
-                powerChords ? "border-accent bg-accent/15 text-fg" : "border-edge text-muted hover:text-fg",
-              )}
-            >
-              Power chords {powerChords ? "on" : "off"}
-            </button>
-          )}
-        </div>
+        <AnimatedTabs
+          label="Choose a guitar"
+          tabs={GUITAR_TABS}
+          value={guitarId}
+          onChange={onGuitarChange}
+          className="self-start"
+        />
       </div>
 
       <div className="sr-only" aria-live="polite" aria-atomic="true">
@@ -357,16 +352,52 @@ export default function GuitarStudio({
       <div className="relative flex flex-wrap gap-7 overflow-hidden rounded-[22px] border border-line bg-panel p-5 sm:p-7">
         <Spotlight />
 
-        <div className="relative flex max-w-56 flex-[1_1_11rem] flex-col justify-between gap-6">
+        <div className="relative flex min-w-0 max-w-56 flex-[1_1_11rem] flex-col justify-between gap-6">
           <div>
             <p className="font-mono text-xs tracking-[0.14em] text-dim">HOLDING</p>
+            {/* Long labels ("Open") get a smaller size so they never run into the neck. */}
             <p
               aria-hidden="true"
-              className="mt-1 text-[clamp(4.5rem,8vw,7rem)] font-black leading-[0.9] tracking-[-0.04em] font-stretch-expanded"
+              className={cn(
+                "mt-1 flex h-[clamp(4.5rem,8vw,7rem)] items-end overflow-hidden font-black leading-[0.9] tracking-[-0.04em] font-stretch-expanded",
+                chordSymbol.length > 2
+                  ? "text-[clamp(2.5rem,4.2vw,3.5rem)]"
+                  : "text-[clamp(4.5rem,8vw,7rem)]",
+              )}
             >
               {chordSymbol}
             </p>
             <p className="mt-2.5 text-base text-muted">{chordName}</p>
+            {/* Always laid out (hidden when the guitar has no power chords) so the neck never moves. */}
+            <button
+              type="button"
+              role="switch"
+              aria-checked={powerChords}
+              aria-hidden={!canUsePowerChords || undefined}
+              tabIndex={canUsePowerChords ? undefined : -1}
+              disabled={!canUsePowerChords}
+              onClick={() => updateLibrary((current) => updatePreferences(current, { powerChords: !powerChords }))}
+              className={cn(
+                "mt-5 flex items-center gap-2.5 text-sm font-semibold text-fg-soft transition-colors hover:text-fg",
+                !canUsePowerChords && "invisible",
+              )}
+            >
+              <span
+                aria-hidden="true"
+                className={cn(
+                  "relative h-6 w-10 shrink-0 rounded-full border transition-colors",
+                  powerChords ? "border-accent-edge bg-accent" : "border-edge bg-raised",
+                )}
+              >
+                <span
+                  className={cn(
+                    "absolute top-0.5 size-[18px] rounded-full transition-[left]",
+                    powerChords ? "left-[18px] bg-accent-ink" : "left-0.5 bg-muted",
+                  )}
+                />
+              </span>
+              Power chords
+            </button>
           </div>
           <div className="flex flex-col gap-2">
             <p className="font-mono text-xs tracking-[0.14em] text-dim">NOTES</p>
